@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">SetFlix</string>
+
+    <string name="hello_world">Please select a Netflix region:</string>
+    <string name="action_settings">Settings</string>
+
+    <string-array name="region_array">
+        <item>Unknown</item>
+        <item>Argentina</item>
+        <item>Australia</item>
+        <item>Austria</item>
+        <item>Argentina</item>
+        <item>Belgium</item>
+        <item>Brazil</item>
+        <item>Canada</item>
+        <item>Columbia</item>
+        <item>Germany</item>
+        <item>Denmark</item>
+        <item>Finland</item>
+        <item>France</item>
+        <item>Ireland</item>
+        <item>Luxemborg</item>
+        <item>Mexico</item>
+        <item>Netherlands</item>
+        <item>New Zealand</item>
+        <item>Norway</item>
+        <item>Sweden</item>
+        <item>Switzerland</item>
+        <item>UK</item>
+        <item>USA</item>
+
+    </string-array>
+
+
+
+
+</resources>

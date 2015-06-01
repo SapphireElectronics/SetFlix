@@ -1,9 +1,12 @@
 package ca.sapphire.setflix;
 
+import android.app.Activity;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
@@ -93,4 +96,16 @@ public class MainActivity extends ActionBarActivity {
         regions.put( "UK","gb");
         regions.put( "USA", "us" );
     }
+
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        // An item was selected. You can retrieve the selected item using
+        // parent.getItemAtPosition(pos)
+        result.  String rc = parent.getItemAtPosition(pos).toString();
+
+        result.
+    }
+
+
 }
+
+

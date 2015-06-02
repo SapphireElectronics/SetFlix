@@ -16,10 +16,13 @@ import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-
 public class MainActivity extends ActionBarActivity {
-    Map regions = new LinkedHashMap();
+    public Map regions = new LinkedHashMap();
+    private Spinner regions_spinner;
 
+    public String getRegionCode(String region) {
+        return regions.get(region).toString();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +31,7 @@ public class MainActivity extends ActionBarActivity {
 
         makeDictionary();
 
-        Spinner spinner = (Spinner) findViewById(R.id.regions_spinner);
+        regions_spinner = (Spinner) findViewById(R.id.regions_spinner);
 
         ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this,android.R.layout.simple_spinner_dropdown_item);
 
@@ -46,7 +49,9 @@ public class MainActivity extends ActionBarActivity {
 // Specify the layout to use when the list of choices appears
 //        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 // Apply the adapter to the spinner
-        spinner.setAdapter(adapter);
+        regions_spinner.setAdapter(adapter);
+
+        addListenerOnSpinnerItemSelection();
     }
 
     @Override
@@ -97,13 +102,20 @@ public class MainActivity extends ActionBarActivity {
         regions.put( "USA", "us" );
     }
 
-    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-        // An item was selected. You can retrieve the selected item using
-        // parent.getItemAtPosition(pos)
-        result.  String rc = parent.getItemAtPosition(pos).toString();
 
-        result.
+
+    public void addListenerOnSpinnerItemSelection(){
+
+        regions_spinner.setOnItemSelectedListener(new CustomOnItemSelectedListener());
     }
+
+//   public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+//       // An item was selected. You can retrieve the selected item using
+//       // parent.getItemAtPosition(pos)
+//       result.  String rc = parent.getItemAtPosition(pos).toString();
+//
+//        result.
+//    }
 
 
 }

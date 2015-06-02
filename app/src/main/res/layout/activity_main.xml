@@ -16,7 +16,7 @@
         android:id="@+id/regions_spinner"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/prompt" />
+        android:layout_below="@id/prompt" />
 
     <TextView
         android:id="@+id/result"

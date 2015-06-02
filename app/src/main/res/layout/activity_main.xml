@@ -18,9 +18,16 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/prompt" />
 
-    <TextView
-        android:id="@+id/result"
+    <Button
+        android:id="@+id/submit_button"
         android:layout_below="@id/regions_spinner"
+        android:text="Update Region"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/result_text"
+        android:layout_below="@id/submit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

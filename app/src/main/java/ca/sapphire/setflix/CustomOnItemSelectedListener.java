@@ -12,8 +12,6 @@ import java.util.Map;
 
 public class CustomOnItemSelectedListener implements OnItemSelectedListener {
 
-    public Map regions;
-
     public void setRegions( Map regions ) {
         regions = regions;
     }
@@ -21,11 +19,13 @@ public class CustomOnItemSelectedListener implements OnItemSelectedListener {
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 
         String region = parent.getItemAtPosition(pos).toString();
-        String region_code = regions.get( region ).toString();
+        String region_code = Regions.REGION.get( region );
 
         Toast.makeText(parent.getContext(),
                 "On Item Select : \n" + region + "  key=" + region_code,
                 Toast.LENGTH_LONG).show();
+
+
     }
 
     @Override

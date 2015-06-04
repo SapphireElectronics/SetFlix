@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -143,36 +144,49 @@ public class MainActivity extends ActionBarActivity {
         }
 
         Toast.makeText(MainActivity.this, "Attempting to set region to: " + region, Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "Attempting to set region to: " + region, Toast.LENGTH_SHORT).show();
+
+
+
+//        String url_str = "http://unlo.it/";
+//        String api_key = "06c6942760af088";       // short key
 
         String url_str = "https://unlocator.com/tool/api.php?api_key=";
-//        String api_key = "06c6942760af088";
-        String api_key = "zzzzzzzzzzzzzzz";
+        String api_key = "91b2c3964245d7b403f54fc8b4bdde9eb25b70df0a4ddd0b5865a27af119d830";
+
+//        String api_key = "zzzzzzzzzzzzzzz";       // test api_key
         String channel = "channel=netflix";
         String country = "country=" + region_code;
+//        https://unlocator.com/tool/api.php?api_key=8c778eec9d9ce80dcac2fe&country=us&channel= netflix
 
-        String full_url = url_str + api_key + "?" + country + "&" + channel;
-
-        Toast.makeText(MainActivity.this, "String: " + full_url, Toast.LENGTH_LONG).show();
-
+        String full_url = url_str + api_key + "&" + country + "&" + channel;
 //        new NetworkTask().execute(full_url);
 
 /*
 */
 
         try {
-
             URL url = new URL(full_url);
             HttpURLConnection request = (HttpURLConnection) (url.openConnection());
 
-
-            Toast.makeText(MainActivity.this, "Returned", Toast.LENGTH_LONG).show();
+//            Toast.makeText(MainActivity.this, url.getHost(), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(MainActivity.this, url.getPath(), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(MainActivity.this, url.getQuery(), Toast.LENGTH_SHORT).show();
 
 
             try {
-                InputStream in = new BufferedInputStream(request.getInputStream());
-                readStream(in);
+                int status = request.getResponseCode();
 
-                Toast.makeText(MainActivity.this, "Return data: " + in.toString(), Toast.LENGTH_LONG).show();
+                if( status != 200 ) {
+                    Toast.makeText(MainActivity.this, "Status :" + status + "  " + request.getResponseMessage(), Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                InputStream in = new BufferedInputStream(request.getInputStream());
+                String ret_data = readStream(in);
+
+                Toast.makeText(MainActivity.this, ret_data, Toast.LENGTH_LONG).show();
+
             } finally {
                 request.disconnect();
             }
@@ -181,7 +195,9 @@ public class MainActivity extends ActionBarActivity {
             Toast.makeText(MainActivity.this, "Bad URL\r\n"+ e.toString(), Toast.LENGTH_LONG).show();
             return;
         } catch (IOException e) {
+
             Toast.makeText(MainActivity.this, "IO Exception\r\n"+ e.toString(), Toast.LENGTH_LONG).show();
+            Log.e("SetFlix", "exception", e);
             return;
 
         }

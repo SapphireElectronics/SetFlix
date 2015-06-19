@@ -2,6 +2,7 @@ package ca.sapphire.setflix;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,5 +38,16 @@ public class Regions {
         regions.put( "USA", "us" );
 
         return Collections.unmodifiableMap(regions);
+    }
+
+    public CharSequence[] getNames()
+    {
+        CharSequence vals[] = new CharSequence[ REGION.size() ];
+        return( REGION.values().toArray( vals ) );
+    }
+
+    public CharSequence[] getCodes() {
+        CharSequence keys[] = new CharSequence[ REGION.size() ];
+        return( REGION.values().toArray( keys ) );
     }
 }

@@ -13,6 +13,32 @@ public class Regions {
 
     private static Map<String, String> createMap() {
         Map<String, String> regions = new LinkedHashMap<String, String>();
+
+        regions.put( "", "Unknown");
+        regions.put( "ar", "Argentina" );
+        regions.put( "au", "Australia" );
+        regions.put( "at", "Austria" );
+        regions.put( "ar", "Argentina" );
+        regions.put( "be", "Belgium" );
+        regions.put( "br", "Brazil" );
+        regions.put( "ca", "Canada" );
+        regions.put( "co", "Columbia" );
+        regions.put( "de", "Germany" );
+        regions.put( "dk", "Denmark" );
+        regions.put( "fi", "Finland" );
+        regions.put( "fr", "France" );
+        regions.put( "ie", "Ireland" );
+        regions.put( "lu", "Luxemborg" );
+        regions.put( "mx", "Mexico" );
+        regions.put( "nl", "Netherlands" );
+        regions.put( "nz", "New Zealand" );
+        regions.put( "no", "Norway" );
+        regions.put( "se", "Sweden" );
+        regions.put( "ch", "Switzerland" );
+        regions.put( "gb", "UK" );
+        regions.put( "us", "USA" );
+
+/*
         regions.put( "Unknown","");
         regions.put( "Argentina","ar" );
         regions.put( "Australia","au");
@@ -36,6 +62,7 @@ public class Regions {
         regions.put( "Switzerland","ch");
         regions.put( "UK","gb");
         regions.put( "USA", "us" );
+*/
 
         return Collections.unmodifiableMap(regions);
     }

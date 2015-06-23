@@ -1,16 +1,21 @@
 package ca.sapphire.setflix;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +39,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
@@ -42,6 +48,9 @@ import java.util.Set;
 public class MainActivity extends ActionBarActivity {
     private Spinner regions_spinner;
     private Button submit_button;
+    private Button region_button;
+    private Button fave_button;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +74,17 @@ public class MainActivity extends ActionBarActivity {
 
 //        addListenerOnSpinnerItemSelection();
         addListenerOnSubmitButton();
+        addListenerOnFaveButton();
+
+        fave_button = (Button) findViewById(R.id.favourite_button);
+
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String str = "Favourite add more: " + sharedPrefs.getString( "favourite", "xx" );
+
+        fave_button.setText( str );
+
+        region_button = (Button) findViewById(R.id.region_button);
 
 
         if (android.os.Build.VERSION.SDK_INT > 9) {
@@ -72,6 +92,7 @@ public class MainActivity extends ActionBarActivity {
             StrictMode.setThreadPolicy(policy);
         }
 
+//        Locale.getISOCountries()
 
 
     }
@@ -119,12 +140,43 @@ public class MainActivity extends ActionBarActivity {
 //    }
 
     public void addListenerOnSubmitButton() {
-        regions_spinner = (Spinner) findViewById(R.id.regions_spinner);
-        submit_button = (Button) findViewById(R.id.submit_button);
+//        regions_spinner = (Spinner) findViewById(R.id.regions_spinner);
+//        submit_button = (Button) findViewById(R.id.submit_button);
+//        submit_button.setOnClickListener(new View.OnClickListener() {
 
-        submit_button.setOnClickListener(new View.OnClickListener() {
+        region_button = (Button) findViewById(R.id.region_button);
+        region_button.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
+                Context context = v.getContext();
+
+                LayoutInflater li = LayoutInflater.from(context);
+                View promptsView = li.inflate(R.layout.region_dialog_layout, null);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder( context );
+
+                alertDialogBuilder.setView(promptsView);
+
+                // set dialog message
+
+                alertDialogBuilder.setTitle("Region..");
+                alertDialogBuilder.setIcon(R.drawable.ic_settings_white_24dp);
+                // create alert dialog
+                final AlertDialog alertDialog = alertDialogBuilder.create();
+
+                final Spinner mSpinner= (Spinner) promptsView.findViewById(R.id.spinner);
+
+                final Button mButton = (Button) promptsView.findViewById(R.id.button);
+
+                // reference UI elements from my_dialog_layout in similar fashion
+
+                mSpinner.setOnItemSelectedListener(new OnSpinnerItemClicked());
+
+                // show it
+                alertDialog.show();
+                alertDialog.setCanceledOnTouchOutside(false);
+
                 String region = String.valueOf(regions_spinner.getSelectedItem());
                 setRegion(region);
                 //               String region_code = Regions.REGION.get( region );
@@ -132,6 +184,35 @@ public class MainActivity extends ActionBarActivity {
                 //               Toast.makeText(MainActivity.this,
                 //                       "Attempting to set region to: " + region,
                 //                               Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    public class OnSpinnerItemClicked implements AdapterView.OnItemSelectedListener {
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent,
+                                   View view, int pos, long id) {
+            Toast.makeText(parent.getContext(), "Clicked : " +
+                    parent.getItemAtPosition(pos).toString(), Toast.LENGTH_LONG).show();
+
+
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView parent) {
+            // Do nothing.
+        }
+    }
+
+    public void addListenerOnFaveButton() {
+        fave_button = (Button) findViewById(R.id.favourite_button);
+
+        fave_button.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText( MainActivity.this, "Clicked on fave", Toast.LENGTH_SHORT ).show();
             }
         });
     }

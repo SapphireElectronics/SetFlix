@@ -51,6 +51,9 @@ public class MainActivity extends ActionBarActivity {
     private Button region_button;
     private Button fave_button;
 
+    // debug mode flag
+    private final boolean DEBUG_MODE = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -252,6 +255,10 @@ public class MainActivity extends ActionBarActivity {
 
 /*
 */
+        if( DEBUG_MODE ) {
+            Toast.makeText(MainActivity.this, "DEBUG MODE, region not set.", Toast.LENGTH_LONG).show();
+            return;
+        }
 
         try {
             URL url = new URL(full_url);

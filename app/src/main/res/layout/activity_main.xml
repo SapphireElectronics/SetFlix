@@ -27,6 +27,7 @@
         android:id="@+id/region_button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/regions_spinner"
         android:padding="16dp"
         android:text="Select Region"
         android:drawableLeft="@drawable/ic_language_black_48dp"

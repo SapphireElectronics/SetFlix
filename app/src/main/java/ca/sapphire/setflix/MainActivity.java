@@ -1,5 +1,9 @@
 package ca.sapphire.setflix;
 
+//TODO  show favourites selection when in settings
+//TODO  updated Favourites button text when selecting a new favourite in settings
+//TODO  move HTTP blocking calls into a separate thread
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -46,48 +50,40 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 
 public class MainActivity extends ActionBarActivity {
-    private Spinner regions_spinner;
-    private Button submit_button;
     private Button region_button;
     private Button fave_button;
+    private Button last_button;
 
     // debug mode flag
-    private final boolean DEBUG_MODE = true;
+    private final boolean DEBUG_MODE = false;
+    private final String TAG = "SetFlix";
 
+    public SharedPreferences sharedPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        regions_spinner = (Spinner) findViewById(R.id.regions_spinner);
-
-// Create an ArrayAdapter using a default spinner layout
-        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_dropdown_item);
-
-        Set regionKeys = Regions.REGION.keySet();
-
-        for (Iterator region = regionKeys.iterator(); region.hasNext(); ) {
-            CharSequence key = (CharSequence) region.next();
-            adapter.add(key);
-        }
-
-// Apply the adapter to the spinner
-        regions_spinner.setAdapter(adapter);
-
-//        addListenerOnSpinnerItemSelection();
-        addListenerOnSubmitButton();
+        addListenerOnRegionButton();
         addListenerOnFaveButton();
+        addListenerOnLastButton();
 
         fave_button = (Button) findViewById(R.id.favourite_button);
 
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-
-        String str = "Favourite add more: " + sharedPrefs.getString( "favourite", "xx" );
+        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String str = sharedPrefs.getString( "favourite", "Canada" );
 
         fave_button.setText( str );
 
         region_button = (Button) findViewById(R.id.region_button);
+
+        last_button = (Button) findViewById(R.id.last_button);
+        str = sharedPrefs.getString( "last", "Canada" );
+
+        last_button.setText( str );
+
+
 
 
         if (android.os.Build.VERSION.SDK_INT > 9) {
@@ -129,23 +125,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
-    public void addListenerOnSpinnerItemSelection() {
-
-        regions_spinner.setOnItemSelectedListener(new CustomOnItemSelectedListener());
-    }
-
-//   public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-//       // An item was selected. You can retrieve the selected item using
-//       // parent.getItemAtPosition(pos)
-//       result.  String rc = parent.getItemAtPosition(pos).toString();
-//
-//        result.
-//    }
-
-    public void addListenerOnSubmitButton() {
-//        regions_spinner = (Spinner) findViewById(R.id.regions_spinner);
-//        submit_button = (Button) findViewById(R.id.submit_button);
-//        submit_button.setOnClickListener(new View.OnClickListener() {
+    public void addListenerOnRegionButton() {
 
         region_button = (Button) findViewById(R.id.region_button);
         region_button.setOnClickListener(new View.OnClickListener() {
@@ -163,25 +143,56 @@ public class MainActivity extends ActionBarActivity {
 
                 // set dialog message
 
-                alertDialogBuilder.setTitle("Region..");
+                alertDialogBuilder.setTitle("Select a Region");
                 alertDialogBuilder.setIcon(R.drawable.ic_settings_white_24dp);
                 // create alert dialog
                 final AlertDialog alertDialog = alertDialogBuilder.create();
 
                 final Spinner mSpinner= (Spinner) promptsView.findViewById(R.id.spinner);
 
-                final Button mButton = (Button) promptsView.findViewById(R.id.button);
+                ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(context, android.R.layout.simple_spinner_dropdown_item);
+                Set regionKeys = Regions.REGION.keySet();
+                for (Iterator region = regionKeys.iterator(); region.hasNext(); ) {
+                    CharSequence key = (CharSequence) region.next();
+                    adapter.add(Regions.REGION.get(key));
+                }
 
+                mSpinner.setAdapter(adapter);
                 // reference UI elements from my_dialog_layout in similar fashion
 
-                mSpinner.setOnItemSelectedListener(new OnSpinnerItemClicked());
+                mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                        if( pos>0 ) {
+                            String region = parent.getItemAtPosition(pos).toString();
+                            setRegion(region);
+
+                            Log.i(TAG, "Clicked : " + region);
+
+                            alertDialog.dismiss();
+
+                            SharedPreferences.Editor editor = sharedPrefs.edit();
+                            editor.putString( "last", region );
+                            editor.commit();
+
+                            last_button.setText( region );
+
+                        }
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView parent) {
+                        // Do nothing.
+                    }
+                });
 
                 // show it
                 alertDialog.show();
                 alertDialog.setCanceledOnTouchOutside(false);
 
-                String region = String.valueOf(regions_spinner.getSelectedItem());
-                setRegion(region);
+//                String region = String.valueOf(regions_spinner.getSelectedItem());
+//                setRegion(region);
                 //               String region_code = Regions.REGION.get( region );
 
                 //               Toast.makeText(MainActivity.this,
@@ -191,40 +202,49 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
-
-    public class OnSpinnerItemClicked implements AdapterView.OnItemSelectedListener {
-
-        @Override
-        public void onItemSelected(AdapterView<?> parent,
-                                   View view, int pos, long id) {
-            Toast.makeText(parent.getContext(), "Clicked : " +
-                    parent.getItemAtPosition(pos).toString(), Toast.LENGTH_LONG).show();
-
-
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView parent) {
-            // Do nothing.
-        }
-    }
-
     public void addListenerOnFaveButton() {
         fave_button = (Button) findViewById(R.id.favourite_button);
 
         fave_button.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText( MainActivity.this, "Clicked on fave", Toast.LENGTH_SHORT ).show();
+                String region = String.valueOf( fave_button.getText() );
+                setRegion(region);
             }
         });
     }
 
+    public void addListenerOnLastButton() {
+        last_button = (Button) findViewById(R.id.last_button);
+
+        last_button.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String region = String.valueOf( last_button.getText() );
+                setRegion(region);
+            }
+        });
+    }
+
+
     public void setRegion(String region) {
+//        String region_code = Regions.REGION.getKeyByValue(region);
+        String region_code = "";
 
-        String region_code = Regions.REGION.get(region);
+        for( Map.Entry entry: Regions.REGION.entrySet() ) {
+            if(region.equals(entry.getValue())) {
+                region_code =  (String) entry.getKey();
+            }
+        }
 
-        if (region_code == "") {
+        String api_key = sharedPrefs.getString("api_key", "");
+
+        if( api_key.equals("") ) {
+            Toast.makeText(MainActivity.this, "Please enter an API Key in Settings", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (region_code.equals("") ) {
             Toast.makeText(MainActivity.this, "Please select a region to watch.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -235,26 +255,19 @@ public class MainActivity extends ActionBarActivity {
         }
 
         Toast.makeText(MainActivity.this, "Attempting to set region to: " + region, Toast.LENGTH_SHORT).show();
-        Toast.makeText(MainActivity.this, "Attempting to set region to: " + region, Toast.LENGTH_SHORT).show();
 
+// Sample string:   http://unlo.it/79f7a5b712bac07?country=us&channel=netflix
 
+//        String api_key = "06c6942760af088";
+//        String api_key = "91b2c3964245d7b403f54fc8b4bdde9eb25b70df0a4ddd0b5865a27af119d830";
 
-//        String url_str = "http://unlo.it/";
-//        String api_key = "06c6942760af088";       // short key
-
-        String url_str = "https://unlocator.com/tool/api.php?api_key=";
-        String api_key = "91b2c3964245d7b403f54fc8b4bdde9eb25b70df0a4ddd0b5865a27af119d830";
-
-//        String api_key = "zzzzzzzzzzzzzzz";       // test api_key
+        String url_str = "http://unlo.it/";
         String channel = "channel=netflix";
         String country = "country=" + region_code;
-//        https://unlocator.com/tool/api.php?api_key=8c778eec9d9ce80dcac2fe&country=us&channel= netflix
 
-        String full_url = url_str + api_key + "&" + country + "&" + channel;
-//        new NetworkTask().execute(full_url);
+        String full_url = url_str + api_key + "?" + country + "&" + channel;
+        Log.i(TAG, "URL: " + full_url);
 
-/*
-*/
         if( DEBUG_MODE ) {
             Toast.makeText(MainActivity.this, "DEBUG MODE, region not set.", Toast.LENGTH_LONG).show();
             return;
@@ -264,22 +277,32 @@ public class MainActivity extends ActionBarActivity {
             URL url = new URL(full_url);
             HttpURLConnection request = (HttpURLConnection) (url.openConnection());
 
-//            Toast.makeText(MainActivity.this, url.getHost(), Toast.LENGTH_SHORT).show();
-//            Toast.makeText(MainActivity.this, url.getPath(), Toast.LENGTH_SHORT).show();
-//            Toast.makeText(MainActivity.this, url.getQuery(), Toast.LENGTH_SHORT).show();
-
-
             try {
                 int status = request.getResponseCode();
 
+                if( (status == HttpURLConnection.HTTP_MOVED_PERM) || (status == HttpURLConnection.HTTP_MOVED_TEMP) ) {
+
+                    // get redirect url from "location" header field
+                    String newUrl = request.getHeaderField("Location");
+
+                    // open the new connnection again
+                    request = (HttpURLConnection) new URL(newUrl).openConnection();
+                    status = request.getResponseCode();
+
+                    Log.i( TAG, "Redirect: " + newUrl );
+                }
+
                 if( status != 200 ) {
+                    Log.i(TAG, "Status :" + status + "  " + request.getResponseMessage());
                     Toast.makeText(MainActivity.this, "Status :" + status + "  " + request.getResponseMessage(), Toast.LENGTH_LONG).show();
+
                     return;
                 }
 
                 InputStream in = new BufferedInputStream(request.getInputStream());
                 String ret_data = readStream(in);
 
+                Log.i( TAG, ret_data);
                 Toast.makeText(MainActivity.this, ret_data, Toast.LENGTH_LONG).show();
 
             } finally {
@@ -296,7 +319,6 @@ public class MainActivity extends ActionBarActivity {
             return;
 
         }
-/**/
     }
 
     private String readStream(InputStream is) {
@@ -313,6 +335,7 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+/*
     private class NetworkTask extends AsyncTask<String, Void, HttpResponse> {
         @Override
         protected HttpResponse doInBackground(String... params) {
@@ -350,7 +373,7 @@ public class MainActivity extends ActionBarActivity {
                 Toast.makeText(MainActivity.this, result.getEntity().toString(), Toast.LENGTH_LONG).show();
         }
     }
-
+*/
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);

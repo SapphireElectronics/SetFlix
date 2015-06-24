@@ -1,9 +1,12 @@
 package ca.sapphire.setflix;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Created by apreston on 6/2/2015.
@@ -14,7 +17,7 @@ public class Regions {
     private static Map<String, String> createMap() {
         Map<String, String> regions = new LinkedHashMap<String, String>();
 
-        regions.put( "", "Unknown");
+        regions.put( "", "Not Selected");
         regions.put( "ar", "Argentina" );
         regions.put( "au", "Australia" );
         regions.put( "at", "Austria" );
@@ -76,5 +79,14 @@ public class Regions {
     public CharSequence[] getCodes() {
         CharSequence keys[] = new CharSequence[ REGION.size() ];
         return( REGION.values().toArray( keys ) );
+    }
+
+    public String getKeyByValue( String value ) {
+        for( Map.Entry entry: Regions.REGION.entrySet() ) {
+            if(value.equals(entry.getValue())) {
+                return ((String) entry.getKey());
+            }
+        }
+        return "";
     }
 }

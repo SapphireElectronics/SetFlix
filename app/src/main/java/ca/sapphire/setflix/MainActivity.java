@@ -1,7 +1,5 @@
 package ca.sapphire.setflix;
 
-//TODO  show favourites selection when in settings
-//TODO  updated Favourites button text when selecting a new favourite in settings
 //TODO  move HTTP blocking calls into a separate thread
 
 import android.app.Activity;
@@ -83,9 +81,6 @@ public class MainActivity extends ActionBarActivity {
 
         last_button.setText( str );
 
-
-
-
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
@@ -95,6 +90,13 @@ public class MainActivity extends ActionBarActivity {
 
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fave_button.setText( sharedPrefs.getString( "favourite", "" ));
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -157,7 +159,7 @@ public class MainActivity extends ActionBarActivity {
                     adapter.add(Regions.REGION.get(key));
                 }
 
-                mSpinner.setAdapter(adapter);
+                   mSpinner.setAdapter(adapter);
                 // reference UI elements from my_dialog_layout in similar fashion
 
                 mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

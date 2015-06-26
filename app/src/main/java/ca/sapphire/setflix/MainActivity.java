@@ -1,17 +1,11 @@
 package ca.sapphire.setflix;
 
-//TODO  move HTTP blocking calls into a separate thread
-
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.http.AndroidHttpClient;
-import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
@@ -24,30 +18,17 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Enumeration;
-import java.util.LinkedHashMap;
 import java.util.Set;
 
 public class MainActivity extends ActionBarActivity {
+    NetSetRegion netSetRegion;
+
     private Button region_button;
     private Button fave_button;
     private Button last_button;
@@ -94,7 +75,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        fave_button.setText( sharedPrefs.getString( "favourite", "" ));
+        fave_button.setText(sharedPrefs.getString("favourite", ""));
     }
 
 
@@ -175,10 +156,14 @@ public class MainActivity extends ActionBarActivity {
                             alertDialog.dismiss();
 
                             SharedPreferences.Editor editor = sharedPrefs.edit();
-                            editor.putString( "last", region );
-                            editor.commit();
 
-                            last_button.setText( region );
+                            // is the newly picked region is not the same as the Favourite button, then update the Last button
+                            if( ! sharedPrefs.getString( "favourite", "Canada").equals(region) ) {
+                                editor.putString("last", region);
+                                editor.commit();
+
+                                last_button.setText(region);
+                            }
 
                         }
                     }
@@ -241,6 +226,9 @@ public class MainActivity extends ActionBarActivity {
 
         String api_key = sharedPrefs.getString("api_key", "");
 
+        if( api_key == null )
+            api_key = "";
+
         if( api_key.equals("") ) {
             Toast.makeText(MainActivity.this, "Please enter an API Key in Settings", Toast.LENGTH_SHORT).show();
             return;
@@ -275,107 +263,11 @@ public class MainActivity extends ActionBarActivity {
             return;
         }
 
-        try {
-            URL url = new URL(full_url);
-            HttpURLConnection request = (HttpURLConnection) (url.openConnection());
+        netSetRegion = new NetSetRegion( this, region, (ProgressBar) findViewById(R.id.progressBar) );
+        netSetRegion.execute( full_url ).getStatus();
 
-            try {
-                int status = request.getResponseCode();
-
-                if( (status == HttpURLConnection.HTTP_MOVED_PERM) || (status == HttpURLConnection.HTTP_MOVED_TEMP) ) {
-
-                    // get redirect url from "location" header field
-                    String newUrl = request.getHeaderField("Location");
-
-                    // open the new connnection again
-                    request = (HttpURLConnection) new URL(newUrl).openConnection();
-                    status = request.getResponseCode();
-
-                    Log.i( TAG, "Redirect: " + newUrl );
-                }
-
-                if( status != 200 ) {
-                    Log.i(TAG, "Status :" + status + "  " + request.getResponseMessage());
-                    Toast.makeText(MainActivity.this, "Status :" + status + "  " + request.getResponseMessage(), Toast.LENGTH_LONG).show();
-
-                    return;
-                }
-
-                InputStream in = new BufferedInputStream(request.getInputStream());
-                String ret_data = readStream(in);
-
-                Log.i( TAG, ret_data);
-                Toast.makeText(MainActivity.this, ret_data, Toast.LENGTH_LONG).show();
-
-            } finally {
-                request.disconnect();
-            }
-
-        } catch (MalformedURLException e) {
-            Toast.makeText(MainActivity.this, "Bad URL\r\n"+ e.toString(), Toast.LENGTH_LONG).show();
-            return;
-        } catch (IOException e) {
-
-            Toast.makeText(MainActivity.this, "IO Exception\r\n"+ e.toString(), Toast.LENGTH_LONG).show();
-            Log.e("SetFlix", "exception", e);
-            return;
-
-        }
     }
 
-    private String readStream(InputStream is) {
-        try {
-            ByteArrayOutputStream bo = new ByteArrayOutputStream();
-            int i = is.read();
-            while (i != -1) {
-                bo.write(i);
-                i = is.read();
-            }
-            return bo.toString();
-        } catch (IOException e) {
-            return "";
-        }
-    }
-
-/*
-    private class NetworkTask extends AsyncTask<String, Void, HttpResponse> {
-        @Override
-        protected HttpResponse doInBackground(String... params) {
-            String full_url = params[0];
-
-            try {
-                URL url = new URL(full_url);
-                HttpURLConnection request = (HttpURLConnection) (url.openConnection());
-
-                Toast.makeText(MainActivity.this, "Returned", Toast.LENGTH_LONG).show();
-
-
-                try {
-                    InputStream in = new BufferedInputStream(request.getInputStream());
-                    readStream(in);
-
-                    Toast.makeText(MainActivity.this, in.toString(), Toast.LENGTH_LONG).show();
-                } finally {
-                    request.disconnect();
-                }
-
-            } catch (MalformedURLException e) {
-                Toast.makeText(MainActivity.this, "Bad URL", Toast.LENGTH_LONG).show();
-            } catch (IOException e) {
-                Toast.makeText(MainActivity.this, "IO Exception", Toast.LENGTH_LONG).show();
-            }
-            return null;
-        }
-
-
-        @Override
-        protected void onPostExecute(HttpResponse result) {
-            //Do something with result
-            if (result != null)
-                Toast.makeText(MainActivity.this, result.getEntity().toString(), Toast.LENGTH_LONG).show();
-        }
-    }
-*/
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);

@@ -26,6 +26,7 @@
         android:drawableLeft="@drawable/ic_favorite_black_48dp"
         android:textSize="24sp"
         android:textAllCaps="false"
+        android:hapticFeedbackEnabled="true"
         />
 
     <Button
@@ -38,6 +39,7 @@
         android:drawableLeft="@drawable/ic_fast_rewind_black_48dp"
         android:textSize="24sp"
         android:textAllCaps="false"
+        android:hapticFeedbackEnabled="true"
         />
 
     <ProgressBar

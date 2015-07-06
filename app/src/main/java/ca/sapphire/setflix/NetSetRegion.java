@@ -3,6 +3,7 @@ package ca.sapphire.setflix;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 

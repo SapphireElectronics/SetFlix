@@ -17,7 +17,7 @@ public class Regions {
     private static Map<String, String> createMap() {
         Map<String, String> regions = new LinkedHashMap<String, String>();
 
-        regions.put( "", "Not Selected");
+//        regions.put( "", "Not Selected");
         regions.put( "ar", "Argentina" );
         regions.put( "au", "Australia" );
         regions.put( "at", "Austria" );

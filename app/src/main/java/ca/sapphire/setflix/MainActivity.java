@@ -7,11 +7,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.Xml;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,11 +26,21 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import org.apache.http.client.methods.HttpGet;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 //public class MainActivity extends ActionBarActivity {
 public class MainActivity extends AppCompatActivity {
     NetSetRegion netSetRegion;
+    NetGetRegion netGetRegion;
 
     private Button region_button;
     private Button fave_button;
@@ -67,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
+
+        getRegion();
 
 //        Locale.getISOCountries()
 
@@ -268,6 +282,14 @@ public class MainActivity extends AppCompatActivity {
         netSetRegion = new NetSetRegion( this, region, (ProgressBar) findViewById(R.id.progressBar) );
         netSetRegion.execute( full_url ).getStatus();
 
+    }
+
+    public String getRegion() {
+
+        netGetRegion = new NetGetRegion( this );
+        netGetRegion.execute().getStatus();
+
+        return "";
     }
 
     private boolean isNetworkAvailable() {

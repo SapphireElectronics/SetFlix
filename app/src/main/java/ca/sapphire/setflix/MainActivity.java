@@ -298,4 +298,47 @@ public class MainActivity extends AppCompatActivity {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+
+    private class NetGetRegion extends AsyncTask<URL, Void, Void> {
+
+        private final String ns = null;
+        String country;
+
+        public String doInBackground( URL ... urls ) {
+
+            try {
+                URL url = new URL( "http://api-global.netflix.com/apps/applefuji/config" );
+                HttpURLConnection conn = (HttpURLConnection) (url.openConnection());
+
+                XmlPullParser parser = Xml.newPullParser();
+                try {
+                    parser.setInput( conn.getInputStream(), null );
+//                        parser.nextTag();
+                    parser.require(XmlPullParser.START_TAG, ns, "feed");
+                    while (parser.next() != XmlPullParser.END_TAG) {
+                        if (parser.getEventType() != XmlPullParser.START_TAG) {
+                            continue;
+                        }
+                        if (parser.getName().equals("country")) {
+                            country = parser.getText();
+                        }
+                    }
+                } catch (XmlPullParserException e) {
+                    e.printStackTrace();
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        protected void onPreExecute() {
+
+        }
+
+        protected void onPostExecute( String str ) {
+        }
+    }
+
 }

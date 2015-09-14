@@ -53,10 +53,6 @@ public class NetGetRegion extends AsyncTask<Void, Void, Void> {
                     e.printStackTrace();
                 }
 
-
-
-
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
